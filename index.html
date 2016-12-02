@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="contact.css">
+</head>
+<body>
+  <div id="header">
+  <h2>Contact list</h2>
+  </div>
+
+  <div id="contacts">
+  <div id="inputBox">
+    <h3 id="type">New Contact</h3>
+    <p>Name: </p><input id="name" placeholder="John Doe"></input></br>
+    <p>Phone: </p><input id="phone" placeholder="5555555555"></input></br>
+    <p>Email: </p><input id="email" placeholder="johndoe@yahoo.com"></input></br>
+    <p>Age: </p><input id="age" placeholder="50"></input></br>
+    <p>Birthday: </p><input id="birthday" placeholder="6/15/66"></input></br>
+    <p>Address: </p><input id="address" placeholder="555 Example Way St. George, UT 84790"></input></br>
+    <button id="save-button">Save</button>
+  </div>
+  <ul id="contact-list">
+  </ul>
+
+  <template id="contact">
+    <li><button id="editButton">Edit</button><button id="deleteButton">Delete</button></li>
+  </template>
+</div>
+
+  <div id="signInBox">
+    <header id="sheader">
+      <h2 id="title">Sign In</h2>
+    </header>
+    <input id="semail" placeholder="Email"></input></br>
+    <input id="spassword" placeholder="Password" type="password" ></input></br>
+    <a id="register">Register?</a>
+    <button id="sign-in-button">Sign In</button>
+  </div>
+
+  <div id="registerBox">
+    <input id="remail" placeholder="*Email"></input></br>
+    <input id="rpassword" placeholder="*Password" type="password"></input></br>
+    <input id="fname" placeholder="First Name"></input></br>
+    <input id="lname" placeholder="Last Name"></input></br>
+    <p>* = required</p>
+    <button id="register-button">Register</button>
+  </div>
+
+  <script src="contact.js"></script>
+  <script src="cookie.js"></script>
+</body>
+</html>

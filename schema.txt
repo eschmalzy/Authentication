@@ -1,0 +1,1 @@
+CREATE TABLE users (id integer PRIMARY KEY NOT NULL, email varchar(60) NOT NULL, encryptedpass varchar(255) NOT NULL, fname varchar(30), lname varchar(30));
