@@ -2,7 +2,7 @@
 
 1. id
 2. email
-3. encryptedpass
+3. encryptedpass (encrypted with bcrypt)
 4. fname
 5. lname
 
@@ -34,22 +34,30 @@
                       address VARCHAR(64));**
 
 #REST endpoint methods
-Retrieve collection
-  GET /contacts
+getContacts
+  method: GET
   localhost:8080/contacts
 
-Retrieve element
-  GET /contacts/id
+getContact
+  method: GET
   localhost:8080/contacts/id
 
-Create element
-  POST /contacts
+addContact
+  method: POST
   localhost:8080/contacts
 
-Update element
-  PUT /contacts/id
+updateContact
+  method: PUT
   localhost:8080/contacts/id
 
-Delete element
-  DELETE /contacts/id
+deleteContact
+  method: DELETE
   localhost:8080/contacts/id
+
+signIn
+  method: POST
+  localhost:8080/sessions
+
+getUsers
+  method: POST
+  localhost:8080/users

@@ -22,7 +22,7 @@ signInB.onclick = function() {
     signIn(function(){
       email.value = "";
       password.value = "";
-      //changed to make success turn on rest of index
+      alert("Welcome back, "+email);
       document.getElementById("contacts").style.display = "block";
       document.getElementById("signInBox").style.display = "none";
       document.getElementById("registerBox").style.display = "none";
@@ -91,7 +91,7 @@ var signIn = function(success, failure){
       }
     }
   };
-  request.open("POST", "http://localhost:8080/users/"+email);
+  request.open("POST", "http://localhost:8080/sessions");
   request.withCredentials = true;
   request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
   request.send("email="+email+"&encryptedpass="+password);

@@ -43,7 +43,7 @@ class UserDB:
         return d
 
     def getUser(self, idPath):
-        personID = self.getPath(idPath)
+        personID = idPath[0]
         connection = sqlite3.connect("users.db")
         connection.row_factory = self.rowFactory
         cursor = connection.cursor()
@@ -60,22 +60,6 @@ class UserDB:
         rows = cursor.fetchall()
         connection.close()
         return json.dumps(rows)
-
-    # def deleteUser(self, path):
-    #     personID = self.getPath(path)
-    #     connection = sqlite3.connect("users.db")
-    #     connection.row_factory = self.rowFactory
-    #     cursor = connection.cursor()
-    #     cursor.execute("SELECT * from users WHERE email = (?)",(email,))
-    #     result = cursor.fetchall()
-    #     if result == []:
-    #         return False
-    #     cursor.execute("DELETE FROM users WHERE email = (?)", (email,))
-    #     connection.commit()
-        ##rows = cursor.fetchall()
-        # connection.close()
-        ##return json.dumps(rows)
-
 
     def addUser(self,contactInfo):
         contactInfo = self.parseDict(contactInfo)

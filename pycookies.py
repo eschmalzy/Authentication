@@ -18,13 +18,25 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         usr = UserDB()
         if self.path.startswith("/contacts/"):
             #handle specific contact
-            idPath = self.path
-            contact = lst.getContact(idPath)
-            if len(contact) == 2:
-                self.header404("Couldn't find contact")
+            matched = False
+            allUsers = usr.getUsernames()
+            for i in allUsers:
+                if gSessionStore.sessionData[self.session] == i[0] and i[0] != "":
+                    matched = True
+                    break
+                else:
+                    matched = False
+            print(matched)
+            if matched:
+                        idPath = self.path
+                        contact = lst.getContact(idPath)
+                        if len(contact) == 2:
+                            self.header404("Couldn't find contact")
+                        else:
+                            self.header200()
+                            self.wfile.write(bytes(contact, "utf-8"))
             else:
-                self.header200()
-                self.wfile.write(bytes(contact, "utf-8"))
+                self.header401()
         elif self.path.startswith("/contacts"):
             #handle contacts
             matched = False
@@ -51,19 +63,31 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         lst = ContactsDB()
         usr = UserDB()
         if self.path.startswith("/contacts"):
-            length = self.header201()
-            data, amount = self.parseInput(length)
-            if amount > 6:
-                self.header404("Unable to add contact")
-                return
-            lst.addContact(data)
-            self.wfile.write(bytes(lst.getContacts(), "utf-8"))
-        elif self.path.startswith("/users/"):
-            idPath = self.path
-            userInfo = usr.getUser(idPath)
+            matched = False
+            allUsers = usr.getUsernames()
+            for i in allUsers:
+                if gSessionStore.sessionData[self.session] == i[0] and i[0] != "":
+                    matched = True
+                    break
+                else:
+                    matched = False
+            print(matched)
+            if matched:
+                length = self.header201()
+                data, amount = self.parseInput(length)
+                if amount > 6:
+                    self.header404("Unable to add contact")
+                    return
+                lst.addContact(data)
+                self.wfile.write(bytes(lst.getContacts(), "utf-8"))
+            else:
+                self.header401()
+        elif self.path.startswith("/sessions"):
             length = int(self.headers['Content-Length'])
             data, amount = self.parseInput(length)
+            idPath = data["email"]
             testPass = data["encryptedpass"]
+            userInfo = usr.getUser(idPath)
             if userInfo:
                 if bcrypt.verify(testPass[0],userInfo[0]["encryptedpass"]):
                     print("saved email")
@@ -92,16 +116,28 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.load_session()
         lst = ContactsDB()
         if self.path.startswith("/contacts/"):
-            id = lst.getPath(self.path)
-            allid = lst.getIDS()
-            for i in allid:
-                if i == id:
-                    length = self.altHeader201()
-                    data, num = self.parseInput(length)
-                    lst.updateContact(self.path, data)
-                    self.wfile.write(bytes(lst.getContacts(), "utf-8"))
+            matched = False
+            allUsers = usr.getUsernames()
+            for i in allUsers:
+                if gSessionStore.sessionData[self.session] == i[0] and i[0] != "":
+                    matched = True
+                    break
                 else:
-                    self.header404("No such user")
+                    matched = False
+            print(matched)
+            if matched:
+                id = lst.getPath(self.path)
+                allid = lst.getIDS()
+                for i in allid:
+                    if i == id:
+                        length = self.altHeader201()
+                        data, num = self.parseInput(length)
+                        lst.updateContact(self.path, data)
+                        self.wfile.write(bytes(lst.getContacts(), "utf-8"))
+                    else:
+                        self.header404("No such user")
+            else:
+                self.header401()
         elif self.path.startswith("/contacts"):
             self.header404("Cannot update collection")
         else:
@@ -112,11 +148,23 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         lst = ContactsDB()
         usr = UserDB()
         if self.path.startswith("/contacts/"):
-            delete = lst.deleteContact(self.path)
-            if delete == False:
-                self.header404("No such contact")
+            matched = False
+            allUsers = usr.getUsernames()
+            for i in allUsers:
+                if gSessionStore.sessionData[self.session] == i[0] and i[0] != "":
+                    matched = True
+                    break
+                else:
+                    matched = False
+            print(matched)
+            if matched:
+                delete = lst.deleteContact(self.path)
+                if delete == False:
+                    self.header404("No such contact")
+                else:
+                    self.header200()
             else:
-                self.header200()
+                self.header401()
         else:
             self.header404("Collection not found")
 
