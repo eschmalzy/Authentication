@@ -68,10 +68,6 @@ var addUser = function (success, failure){
       }
     }
   };
-  console.log(email);
-  console.log(password);
-  console.log(fname);
-  console.log(lname);
   post.open("POST", "http://localhost:8080/users");
   post.withCredentials = true;
   post.setRequestHeader("Content-type", "application/x-www-form-urlencoded");

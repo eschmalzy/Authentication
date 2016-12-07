@@ -14,10 +14,11 @@ class MyRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         #index or list action
         self.load_session()
-        lst = ContactsDB()
-        usr = UserDB()
+
         if self.path.startswith("/contacts/"):
             #handle specific contact
+            lst = ContactsDB()
+            usr = UserDB()
             matched = False
             allUsers = usr.getUsernames()
             for i in allUsers:
@@ -28,17 +29,19 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                     matched = False
             print(matched)
             if matched:
-                        idPath = self.path
-                        contact = lst.getContact(idPath)
-                        if len(contact) == 2:
-                            self.header404("Couldn't find contact")
-                        else:
-                            self.header200()
-                            self.wfile.write(bytes(contact, "utf-8"))
+                idPath = self.path
+                contact = lst.getContact(idPath)
+                if len(contact) == 2:
+                    self.header404("Couldn't find contact")
+                else:
+                    self.header200()
+                    self.wfile.write(bytes(contact, "utf-8"))
             else:
                 self.header401()
         elif self.path.startswith("/contacts"):
             #handle contacts
+            lst = ContactsDB()
+            usr = UserDB()
             matched = False
             allUsers = usr.getUsernames()
             for i in allUsers:
@@ -60,9 +63,9 @@ class MyRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         #index or list action
         self.load_session()
-        lst = ContactsDB()
-        usr = UserDB()
         if self.path.startswith("/contacts"):
+            lst = ContactsDB()
+            usr = UserDB()
             matched = False
             allUsers = usr.getUsernames()
             for i in allUsers:
@@ -83,6 +86,8 @@ class MyRequestHandler(BaseHTTPRequestHandler):
             else:
                 self.header401()
         elif self.path.startswith("/sessions"):
+            lst = ContactsDB()
+            usr = UserDB()
             length = int(self.headers['Content-Length'])
             data, amount = self.parseInput(length)
             idPath = data["email"]
@@ -98,12 +103,14 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                 else:
                     self.header401()
         elif self.path.startswith("/users"):
+            lst = ContactsDB()
+            usr = UserDB()
             ids = usr.getUsernames()
             length = int(self.headers['Content-Length'])
             data, amount = self.parseInput(length)
             for i in ids:
                 if i[0] == data["email"][0]:
-                    self.header401()
+                    self.header422()
                     return
             self.header201()
             data["encryptedpass"][0] = bcrypt.encrypt(data["encryptedpass"][0])
@@ -116,28 +123,16 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.load_session()
         lst = ContactsDB()
         if self.path.startswith("/contacts/"):
-            matched = False
-            allUsers = usr.getUsernames()
-            for i in allUsers:
-                if gSessionStore.sessionData[self.session] == i[0] and i[0] != "":
-                    matched = True
-                    break
+            id = lst.getPath(self.path)
+            allid = lst.getIDS()
+            for i in allid:
+                if i == id:
+                    length = self.header201()
+                    data, num = self.parseInput(length)
+                    lst.updateContact(self.path, data)
+                    self.wfile.write(bytes(lst.getContacts(), "utf-8"))
                 else:
-                    matched = False
-            print(matched)
-            if matched:
-                id = lst.getPath(self.path)
-                allid = lst.getIDS()
-                for i in allid:
-                    if i == id:
-                        length = self.altHeader201()
-                        data, num = self.parseInput(length)
-                        lst.updateContact(self.path, data)
-                        self.wfile.write(bytes(lst.getContacts(), "utf-8"))
-                    else:
-                        self.header404("No such user")
-            else:
-                self.header401()
+                    self.header404("No such user")
         elif self.path.startswith("/contacts"):
             self.header404("Cannot update collection")
         else:
@@ -145,26 +140,13 @@ class MyRequestHandler(BaseHTTPRequestHandler):
 
     def do_DELETE(self):
         self.load_session()
-        lst = ContactsDB()
-        usr = UserDB()
         if self.path.startswith("/contacts/"):
-            matched = False
-            allUsers = usr.getUsernames()
-            for i in allUsers:
-                if gSessionStore.sessionData[self.session] == i[0] and i[0] != "":
-                    matched = True
-                    break
-                else:
-                    matched = False
-            print(matched)
-            if matched:
-                delete = lst.deleteContact(self.path)
-                if delete == False:
-                    self.header404("No such contact")
-                else:
-                    self.header200()
+            lst = ContactsDB()
+            delete = lst.deleteContact(self.path)
+            if delete == False:
+                self.header404("No such contact")
             else:
-                self.header401()
+                self.header200()
         else:
             self.header404("Collection not found")
 
@@ -201,6 +183,15 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/html")
         self.end_headers()
         self.wfile.write(bytes("<p>404 "+error+"</p>", "utf-8"))
+
+    def header422(self, error):
+        #error
+        self.send_response(422)
+        self.send_header("Access-Control-Allow-Origin", self.headers["Origin"])
+        self.send_header("Access-Control-Allow-Credentials", "true")
+        self.send_cookie()
+        self.send_header("Content-Type", "text/html")
+        self.end_headers()
 
     def header401(self):
         self.send_response(401)
@@ -251,8 +242,6 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.load_cookie()
         # check for a session ID in a cookie
         # IF cookie exists:
-        print("self.cookie")
-        print(self.cookie)
         if "!" not in self.cookie:
             print("COOKIE")
             # try to load the session object using the ID
